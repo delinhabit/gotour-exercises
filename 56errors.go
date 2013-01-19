@@ -15,16 +15,16 @@ func Sqrt(f float64) (float64, error) {
 	if f < 0 {
 		return 0, ErrNegativeSqrt(f)
 	}
-	
+
 	z := float64(f / 2)
 	last := float64(0)
 
-	for math.Abs(last - z) > 0.0000000001 {
-                last = z
-                z = z - (z*z-f)/(2*z)
-        }
-	
-        return z, nil
+	for math.Abs(last-z) > 0.0000000001 {
+		last = z
+		z = z - (z*z-f)/(2*z)
+	}
+
+	return z, nil
 }
 
 func main() {

@@ -8,7 +8,7 @@ import (
 
 type Image struct {
 	w, h int
-	f func (int, int) uint8
+	f    func(int, int) uint8
 }
 
 func main() {
@@ -40,4 +40,3 @@ func median(x, y int) uint8 {
 func mult(x, y int) uint8 {
 	return uint8(x * y)
 }
-

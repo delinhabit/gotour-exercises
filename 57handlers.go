@@ -8,8 +8,8 @@ import (
 type String string
 
 func (s String) ServeHTTP(
-		w http.ResponseWriter,
-		r *http.Request) {
+	w http.ResponseWriter,
+	r *http.Request) {
 	fmt.Fprint(w, s)
 }
 
@@ -20,8 +20,8 @@ type Struct struct {
 }
 
 func (s Struct) ServeHTTP(
-		w http.ResponseWriter,
-		r *http.Request) {
+	w http.ResponseWriter,
+	r *http.Request) {
 	fmt.Fprintf(w, "%s %s %s", s.Greeting, s.Punct, s.Who)
 }
 

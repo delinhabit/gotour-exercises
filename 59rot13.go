@@ -30,4 +30,3 @@ func main() {
 	r := rot13Reader{s}
 	io.Copy(os.Stdout, &r)
 }
-
