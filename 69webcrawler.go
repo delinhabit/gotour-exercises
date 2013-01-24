@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 )
 
 type Fetcher interface {
@@ -15,8 +16,12 @@ type Fetcher interface {
 func Crawl(url string, depth int, fetcher Fetcher) {
 	visited := make(map[string]bool)
 
-	var fetch func(url string, depth int)
-	fetch = func(url string, depth int) {
+	var fetch func(string, int, chan bool)
+	fetch = func(url string, depth int, done chan bool) {
+		defer func() {
+			done <- true
+		}()
+
 		if depth <= 0 || visited[url] {
 			return
 		}
@@ -28,19 +33,25 @@ func Crawl(url string, depth int, fetcher Fetcher) {
 			return
 		}
 
-		fmt.Printf("Found: %s %q\n", url, body)
+		fmt.Printf("[%d] Found: %s %q\n", runtime.NumGoroutine(), url, body)
 		for _, u := range urls {
-			fetch(u, depth-1)
+			d := make(chan bool)
+			go fetch(u, depth-1, d)
+			<-d
 		}
 	}
 
-	fetch(url, depth)
+	done := make(chan bool)
+	go fetch(url, depth, done)
+	<-done
 
 	return
 }
 
 func main() {
+	fmt.Printf("# Goroutines: %d\n", runtime.NumGoroutine())
 	Crawl("http://golang.org/", 4, fetcher)
+	fmt.Printf("# Goroutines: %d\n", runtime.NumGoroutine())
 }
 
 // fakeFetcher is Fetcher that returns canned results.
@@ -55,7 +66,7 @@ func (f *fakeFetcher) Fetch(url string) (string, []string, error) {
 	if res, ok := (*f)[url]; ok {
 		return res.body, res.urls, nil
 	}
-	return "", nil, fmt.Errorf("Not found: %s", url)
+	return "", nil, fmt.Errorf("[%d] Not found: %s", runtime.NumGoroutine(), url)
 }
 
 // fetcher is a populated fakeFetcher.
